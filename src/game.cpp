@@ -1,11 +1,14 @@
 #include <game.hpp>
 #include <textureManager.hpp>
-#include <gameObjectContainer.hpp>
 #include <snake.hpp>
 #include <gameBoard.hpp>
+#include <iostream>
 
-Game::Game(TextureManager& textureManager) :
-	data(GameObjectContainer(), textureManager) {}
+Game::Game(TextureManager& textureManager):
+	data(textureManager)
+	{
+		initGame();
+	}
 
 void Game::initGame() {
 
@@ -13,44 +16,73 @@ void Game::initGame() {
 
 	// Load texture atlas
 	int snakeIndex = data.textureManager.loadTexture(RESOURCES_PATH "snake.png");
-	Rectangle snakeRect{ATLAS_TILE_WIDTH * ATLAS_SCALE_FACTOR, ATLAS_TILE_HEIGHT * 3 * ATLAS_SCALE_FACTOR,
-		ATLAS_TILE_WIDTH * ATLAS_SCALE_FACTOR, ATLAS_TILE_HEIGHT * ATLAS_SCALE_FACTOR};
-
-
+	Rectangle snakeRect{ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT * 3,
+		ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
+		
+	data.board = new GameBoard(data.textureManager, snakeIndex, this, RESOURCES_PATH "levels/level1.json");
+		
+		
 	// Add player
-	Vector2 playerPos{ 100.f, 100.f };
-
-	// TODO: solucionar el problema que tengo al haber creado los AnimatableObjects
-	GameObject* player = new Snake(3, playerPos, 100, data.textureManager, Vector2{ 1, 0 }, snakeIndex, snakeRect, this);
+	Vector2 playerPos{ (float) floor(data.board->getDimensions().x / 2), (float) floor(data.board->getDimensions().y / 2)};
+		
+	
+	Snake* player = new Snake(3, playerPos, 1, data.textureManager, Vector2{ 1, 0 }, snakeIndex, snakeRect, this);
 
 	data.player = player;
 
-	data.container.add(std::move(player));
+	data.board->add(std::move(player));
 
+	player->addBodyPieces(2);
 
-	GameObject* gameBoard = new GameBoard(data.textureManager, snakeIndex, this, 10, 10);
+	//GameObject* gameBoard = new GameBoard(data.textureManager, snakeIndex, this, 10, 10);
 
-	data.container.add(std::move(gameBoard));
+	//data.board.add(std::move(gameBoard));
 }
 
 void Game::gameLoop(float deltaTime) {
 	//data.textureManager.draw(data.backgroundIndex);
 
-	data.container.update(deltaTime);
+	data.board->update(deltaTime);
 
-	data.container.processAttacks();
+	data.board->processAttacks();
 
-	//data.container.removeDead();
+	draw();
+
+	//data.board.removeDead();
 }
 
 /*void Game::spriteRemoved(int index) {
-	data.container.spriteRemoved(index);
+	data.board.spriteRemoved(index);
 }*/
+
+bool Game::canMoveToPos(int x, int y) const{
+	return data.board->canMoveToPos(x, y);
+}
+
+void Game::movedToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY){
+	data.board->moveObjToNewCell(obj, newX, newY, oldX, oldY);
+}
+
+void Game::draw(){
+	data.board->draw();
+	data.board->draw();
+}
+
+void Game::addObj(GameObject* obj){
+	if(obj != nullptr)
+		data.board->add(obj);
+}
+
+void Game::queueDrawObject(GameObject* obj){
+	data.board->queueDrawObject(obj);
+}
 
 bool Game::debug() {
 	return debugMode;
 }
 
 Game::~Game(){
-	data.container.free();
+	delete data.board;
+	data.board = nullptr;
+	data.player = nullptr;
 }

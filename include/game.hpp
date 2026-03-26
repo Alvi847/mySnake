@@ -3,13 +3,20 @@
 #include <memory>
 #include <raylib.h>
 #include <raymath.h>
-#include <gameObjectContainer.hpp>
+
+const int ATLAS_TILE_WIDTH = 8; // Anchura en pixeles de una tile del atlas
+const int ATLAS_TILE_HEIGHT = 8; // Altura en pixeles de una tile del atlas
+const int ATLAS_SCALE_FACTOR = 4; // Factor de escalado de las tiles del atlas
 
 constexpr float GRAVITY = 9.8;
+const int CELL_SIZE = ATLAS_SCALE_FACTOR * ATLAS_TILE_WIDTH;
+const int MOVEMENT_FREQUENCY = 60;
+
 
 class GameObject;
 class Snake;
 class TextureManager;
+class GameBoard;
 
 class Game {
 public:
@@ -23,19 +30,29 @@ public:
 	//void summonAttack(std::shared_ptr<GameObject> attack);
 	bool debug();
 
+	void draw();
+
+	void queueDrawObject(GameObject* obj);
+
+	bool canMoveToPos(int x, int y) const;
+
+	void movedToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY);
+
+	void addObj(GameObject* obj);
+
 	//void summonEnemy(bool onPlayer = true, Vector2 pos = Vector2());
 
     ~Game();
 
 private:
 	struct GameData {
-		GameObjectContainer container;
 		TextureManager& textureManager;
 		int backgroundIndex = 0;
 		GameObject* player = nullptr;
+		GameBoard* board = nullptr;
 
-		GameData(GameObjectContainer c, TextureManager& sm)
-			: container(std::move(c)), textureManager(sm){
+		GameData(TextureManager& sm)
+			: textureManager(sm){
 		}
 
 	};

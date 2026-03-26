@@ -2,18 +2,19 @@
 #include <game.hpp>
 #include <textureManager.hpp>
 
+const int WINDOW_WIDTH = 1280;
+const int WINDOW_HEIGHT = (WINDOW_WIDTH * 3) / 4;
+
 int main ()
 {
 	// Tell the window to use vsync and work on high DPI displays
 	SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_HIGHDPI);
 
 	// Create the window and OpenGL context
-	InitWindow(1280, 800, "Hello Raylib");
+	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "mySnake");
 
 	TextureManager textureManager;
 	Game game(textureManager);
-
-	game.initGame();
 	
 	// game loop
 	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window

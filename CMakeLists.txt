@@ -3,10 +3,21 @@ cmake_minimum_required(VERSION 4.1)
 set(CMAKE_CXX_STANDARD 17)
 
 option(PRODUCTION_BUILD "Make this a production build!" OFF)
+option(JSON_USE_IMPLICIT_CONVERSIONS OFF)
 
 project(mySnake)
 
+# Raylib
 add_subdirectory(lib/raylib EXCLUDE_FROM_ALL)
+
+#JSON
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+
+add_subdirectory(lib/json)
+
+#add_library(foo lib/json/include/nlohmann)
+
+#target_link_libraries(foo PRIVATE nlohmann_json::nlohmann_json)
 
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB_RECURSE MY_HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
@@ -34,4 +45,5 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOUR
 # Link libraries statically
 target_link_libraries("${CMAKE_PROJECT_NAME}" 
 	raylib
+	nlohmann_json::nlohmann_json
 )

@@ -1,19 +1,44 @@
 #include <snake.hpp>
-
-Snake::Snake(int lives, Vector2 pos, float speed, TextureManager& tm, Vector2 direction, int atlasIndex, Rectangle textureRect, Game* game):
-GameObject(lives, pos, speed, tm, direction, atlasIndex, textureRect, game) {}
+#include <iostream>
 
 void Snake::update(float deltaTime){
-    Vector2 direction = {0, 0};
-    if (IsKeyDown(KEY_RIGHT)) direction += {1, 0};
-    if (IsKeyDown(KEY_LEFT)) direction += {-1, 0};
-    if (IsKeyDown(KEY_UP)) direction += {0, -1};
-    if (IsKeyDown(KEY_DOWN)) direction += {0, 1};
-    move(direction, deltaTime);
+    if (IsKeyDown(KEY_RIGHT) && direction != Vector2{-1, 0}) nextDirection = {1, 0};
+    if (IsKeyDown(KEY_LEFT) && direction != Vector2{1, 0}) nextDirection = {-1, 0};
+    if (IsKeyDown(KEY_UP) && direction != Vector2{0, 1}) nextDirection = {0, -1};
+    if (IsKeyDown(KEY_DOWN) && direction != Vector2{0, -1}) nextDirection = {0, 1};
+    move(nextDirection, deltaTime);
     //std::cout << "Position: {" << position.x << ", " << position.y << "}\n";
-    draw();
+    game->queueDrawObject(this);
 }
 
 void Snake::move(Vector2 direction, float deltaTime){
-    position = position + (direction * speed) * deltaTime;
+    
+    if(!canMove(deltaTime)){
+        return;
+    }
+    
+    this->direction = direction;
+    Vector2 newPos = position + (direction * speed); 
+    
+    int newX = floor(newPos.x);
+    int newY = floor(newPos.y);
+
+    if(game->canMoveToPos(newX, newY)){
+        game->movedToNewCell(this, newX, newY, floor(position.x), floor(position.y));
+        position = newPos;
+
+    }
+}
+
+void Snake::addBodyPieces(int count){
+    Rectangle snakeBodyTextureRect{ATLAS_TILE_WIDTH * 5, ATLAS_TILE_HEIGHT * 3,
+		ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
+
+    for(int i = 0; i < count; i++){
+        Vector2 bodyPos = lastSnakeBody->getPos();
+        SnakeBody* bodyPiece = new SnakeBody(1, bodyPos, speed, textureManager, direction,
+            texture.atlasIndex, snakeBodyTextureRect, game, lastSnakeBody);
+        lastSnakeBody = bodyPiece;
+        game->addObj(bodyPiece);
+    }
 }

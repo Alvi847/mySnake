@@ -4,17 +4,13 @@
 #include <string>
 #include <unordered_map>
 
-const int ATLAS_TILE_WIDTH = 8;
-const int ATLAS_TILE_HEIGHT = 8;
-const int ATLAS_SCALE_FACTOR = 4;
-
 class TextureManager {
     public:
 
     TextureManager();
 
     void setGame(Game* game);
-    void draw(int textIndex, Rectangle rect, Vector2 pos, Color color);
+    void draw(int textIndex, Rectangle sourceRect, Vector2 pos, Vector2 orientation, Color color);
     int loadTexture(std::string path);
     void unloadTexture(int index);
     void unloadAll();

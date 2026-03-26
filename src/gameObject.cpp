@@ -1,36 +1,64 @@
 #include <gameObject.hpp>
+#include <gameBoard.hpp>
 
 bool GameObject::attack(GameObject* other) {
 	return false;
 }
 
 // Sistema de colisi�n AABB (Axis-Aligned Bounding Box)
-bool GameObject::isOnPosition(Vector2 other) {
-	return other == position;
+bool GameObject::isOnPosition(Vector2 other) const{
+	return other == this->position;
 }
 
-void GameObject::move(Vector2 direction, float deltaTime) {}
+bool GameObject::canMove(float deltaTime) {
+	this->movementTimer -= deltaTime;
+	if(this->movementTimer > 0)
+		return false;
 
-bool GameObject::isAlive() {
-	return lives > 0;
+	this->movementTimer = this->movementTimerReset;
+	return true;
+}
+
+bool GameObject::isAlive() const{
+	return this->lives > 0;
 }
 
 void GameObject::die() {
-	lives = 0;
+	this->lives = 0;
 }
 
-Vector2 GameObject::getPos() {
-	return position;
+Vector2 GameObject::getPos() const{
+	return this->position;
 }
 
-bool GameObject::isInmune() {
-	return inmune;
+Vector2 GameObject::getDirection() const{
+	return this->direction;
+}
+
+bool GameObject::isInmune() const{
+	return this->inmune;
+}
+
+void GameObject::setZIndex(int z){
+	this->zIndex = z;
+}
+
+void GameObject::toggleInmune(){
+	this->inmune = !this->inmune;
+}
+
+void GameObject::toggleTraversable(){
+	this->traversable = !this->traversable;
+}
+
+bool GameObject::istraversable() const{
+	return traversable;
 }
 
 void GameObject::draw() {
 	if (texture.atlasIndex != -1)
 	{
-		textureManager.draw(texture.atlasIndex, texture.rect, position, WHITE);
+		textureManager.draw(texture.atlasIndex, texture.rect, position * CELL_SIZE, direction, WHITE);
 	}
 }
 
@@ -43,6 +71,6 @@ void GameObject::draw() {
 	}
 }*/
 
-Vector2 GameObject::getDirectionToPos(Vector2 position) {
+Vector2 GameObject::getDirectionToPos(Vector2 position) const{
 	return Vector2{ position.x - this->position.x, position.y - this->position.y };
 }

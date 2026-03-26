@@ -19,38 +19,63 @@ public:
 		lives(lives), position(pos), speed(speed), textureManager(textureManager), direction(direction), game(game), 
 		texture(textureManager.loadTexture(texturePath), textureRect){}
 
-	virtual void move(Vector2 direction, float deltaTime);
+	virtual void move(Vector2 direction, float deltaTime){}
+	bool canMove(float deltaTime);
+
 	virtual void update(float deltaTime) = 0;
 
 	//virtual bool receiveAttack(GameObject* attacker);
 
 	virtual bool attack(GameObject* other);
 
-	bool isAlive();
+	bool isAlive() const;
 	void die();
 
 	virtual void onDeath() {}
 
 	// Sistema de colision AABB (Axis-Aligned Bounding Box)
-	virtual bool isOnPosition(Vector2 other);
+	virtual bool isOnPosition(Vector2 other) const;
 
-	Vector2 getDirectionToPos(Vector2 position);
+	Vector2 getDirectionToPos(Vector2 position) const;
 
-	Vector2 getPos();
+	Vector2 getPos() const;
 
-	bool isInmune();
+	Vector2 getDirection() const;
+
+	bool isInmune() const;
+
+	void setZIndex(int z);
 
 	virtual ~GameObject() = default;
 
-protected:
+	struct CmpGameObjects{
+		bool operator()(const GameObject* a, const GameObject* b) const{
+			return  a->zIndex < b->zIndex;
+		}
+	};
+
 	virtual void draw();
+
+	void toggleInmune();
+
+	void toggleTraversable();
+
+	bool istraversable() const;
+
+protected:
 	//virtual void debugDraw();
 
+	int movementTimerReset = MOVEMENT_FREQUENCY;
+	int movementTimer = movementTimerReset;
+
+	bool traversable = true;
+
 	int lives;
-	Vector2 position;
+	Vector2 position; // Posicion EN EL TABLERO DEL JUEGO
 	float speed;
 	TextureManager& textureManager;
-	Vector2 direction;
+	Vector2 direction = Vector2Zero();
+	int zIndex = 0; // For drawing order (the object with the highest z gets drawn on top of the other objects) 
 	
 	struct TextureData {
 		int atlasIndex = -1;
