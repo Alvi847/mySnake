@@ -19,8 +19,11 @@ void Game::initGame() {
 	Rectangle snakeRect{ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT * 3,
 		ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
 		
-	data.board = new GameBoard(data.textureManager, snakeIndex, this, RESOURCES_PATH "levels/level1.json");
-		
+	// Modo con tablero	
+	//data.board = new GameBoard(data.textureManager, snakeIndex, this, RESOURCES_PATH "levels/level1.json");
+	
+	// Modo sin tablero
+	data.board = new GameBoard(data.textureManager, snakeIndex, this, GetScreenHeight() / CELL_SIZE, GetScreenWidth() / CELL_SIZE);
 		
 	// Add player
 	Vector2 playerPos{ (float) floor(data.board->getDimensions().x / 2), (float) floor(data.board->getDimensions().y / 2)};
@@ -59,8 +62,8 @@ bool Game::canMoveToPos(int x, int y) const{
 	return data.board->canMoveToPos(x, y);
 }
 
-void Game::movedToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY){
-	data.board->moveObjToNewCell(obj, newX, newY, oldX, oldY);
+Vector2 Game::movedToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY){
+	return data.board->moveObjToNewCell(obj, newX, newY, oldX, oldY);
 }
 
 void Game::draw(){

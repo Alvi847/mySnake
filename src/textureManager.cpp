@@ -11,7 +11,7 @@ void TextureManager::setGame(Game* game){
 
 void TextureManager::draw(int textIndex, Rectangle sourceRect, Vector2 pos, Vector2 orientation = {1, 0}, Color color = WHITE){
 	if (textIndex < textures.size()){
-		Rectangle destRect = {100 + pos.x , 100 + pos.y, CELL_SIZE, CELL_SIZE};
+		Rectangle destRect = {pos.x , pos.y, CELL_SIZE, CELL_SIZE};
 		float angle = Vector2Angle(orientation, {(float)0, (float)-1});
 		Vector2 origin = {destRect.width / 2, destRect.height / 2};
 		/*if(orientation != Vector2Zero()){

@@ -3,23 +3,23 @@
 
 // TODO HACER BIEN EL MAPA
 GameBoard::GameBoard(TextureManager& tm, int atlasIndex, Game* game, const int height, const int width):
-    height(height), width(width), tm(tm), atlasIndex(atlasIndex), 
+    height(height), width(width), tm(tm), atlasIndex(atlasIndex), borderlessMode(true),
     drawQueue(std::priority_queue<GameObject*, std::vector<GameObject*>, GameObject::CmpGameObjects>()){
+        Rectangle rect = {ATLAS_TILE_WIDTH * 12, 0, ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
         cells = std::vector<std::vector<Cell*>>(width);
-        for(int i = 0; i < cells.size(); i++){
+        for(int i = 0; i < width; i++){
             cells[i] = std::vector<Cell*>(height);
-            for(int j = 0; j < cells[i].size(); j++){
-                cells[i][j] = new Cell();
-                if(i == 0 || j == 0 || i == width - 1 || j == height - 1)
-                    cells[i][j] = new Cell();
+
+            for(int j = 0; j < height; j++){
+                cells[i][j] = (new Cell(0, rect, Vector2{(float) i, (float) j}, tm, atlasIndex, game));
             }
+                
         }
-        //texture.rect = {ATLAS_TILE_WIDTH * ATLAS_SCALE_FACTOR * 12, 0,
-		//ATLAS_TILE_WIDTH * ATLAS_SCALE_FACTOR, ATLAS_TILE_HEIGHT * ATLAS_SCALE_FACTOR};
+        std::cout << "HEIGHT: " << height << " WIDTH: " << width << std::endl;
 }
 
 GameBoard::GameBoard(TextureManager& tm, int atlasIndex, Game* game, std::string levelPath):
-    height(height), width(width), tm(tm), atlasIndex(atlasIndex), 
+    tm(tm), atlasIndex(atlasIndex), borderlessMode(false),
     drawQueue(std::priority_queue<GameObject*, std::vector<GameObject*>, GameObject::CmpGameObjects>()){
         loadFromFile(levelPath, game);
 }
@@ -52,12 +52,12 @@ bool GameBoard::buildMap(std::vector<std::vector<int>> map, Game* game){
     
     Rectangle rect = {ATLAS_TILE_WIDTH * 12, 0, ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
 
-    cells = std::vector<std::vector<Cell*>>(height);
+    cells = std::vector<std::vector<Cell*>>(width);
 
-    if(map.size() == height){
+    if(map.size() == width){
         while(success && i < map.size()){
-            if (map[i].size() == width){
-                cells[i] = std::vector<Cell*>(width);
+            if (map[i].size() == height){
+                cells[i] = std::vector<Cell*>(height);
 
                 while(success && j < map[i].size()){
                     cells[i][j] = (new Cell(map[i][j], rect, Vector2{(float) i, (float) j}, tm, atlasIndex, game));
@@ -80,7 +80,8 @@ bool GameBoard::canMoveToPos(int x, int y) const {
     if(!isOut(x, y)){
         return cells[x][y]->isTraversable(); 
     }
-    else throw OutOfBoundsError(Vector2{(float) x, (float) y});
+    else return false;
+    //else throw OutOfBoundsError(Vector2{(float) x, (float) y});
 }
 
 void GameBoard::update(float deltaTime) {
@@ -128,14 +129,34 @@ Vector2 GameBoard::getDimensions(){
 }
 
 bool GameBoard::isOut(int x, int y) const{
-    return x > cells.size() || y > cells[x].size() || x < 0 || y < 0;
+    return x >= cells.size() || y >= cells[x].size() || x < 0 || y < 0;
 }
 
-void GameBoard::moveObjToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY){
+Vector2 GameBoard::moveObjToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY){
     if(!isOut(newX, newY)){
         if(!isOut(oldX, oldY)){
             cells[oldX][oldY]->removeObj(obj);
             cells[newX][newY]->addObj(obj);
+
+            return Vector2{(float) newX, (float) newY};
+        }
+        else throw OutOfBoundsError(Vector2{(float) oldX, (float) oldY});
+    }
+    if(borderlessMode){
+        if(!isOut(oldX, oldY)){
+            if (newX >= width)
+                newX = 0;
+            else if (newX < 0)
+                newX = width - 1;
+            
+            if (newY >= height)
+                newY = 0;
+            else if (newY < 0)
+                newY = height - 1;
+
+            cells[oldX][oldY]->removeObj(obj);
+            cells[newX][newY]->addObj(obj);
+            return Vector2{(float) newX, (float) newY};
 
         }
         else throw OutOfBoundsError(Vector2{(float) oldX, (float) oldY});

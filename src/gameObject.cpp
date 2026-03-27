@@ -10,6 +10,17 @@ bool GameObject::isOnPosition(Vector2 other) const{
 	return other == this->position;
 }
 
+void GameObject::move(Vector2 direction, float deltaTime){
+	Vector2 newPos = position + (direction * speed); 
+        
+    newPos = game->movedToNewCell(this, floor(newPos.x), floor(newPos.y), floor(position.x), floor(position.y));
+
+    if(!Vector2Equals(newPos, position)){
+        lastPosition = position;
+        position = newPos;
+    }
+}
+
 bool GameObject::canMove(float deltaTime) {
 	this->movementTimer -= deltaTime;
 	if(this->movementTimer > 0)
@@ -29,6 +40,10 @@ void GameObject::die() {
 
 Vector2 GameObject::getPos() const{
 	return this->position;
+}
+
+Vector2 GameObject::getLastPos() const{
+	return this->lastPosition;
 }
 
 Vector2 GameObject::getDirection() const{
@@ -72,5 +87,5 @@ void GameObject::draw() {
 }*/
 
 Vector2 GameObject::getDirectionToPos(Vector2 position) const{
-	return Vector2{ position.x - this->position.x, position.y - this->position.y };
+	return Vector2Normalize(Vector2{ position.x - this->position.x, position.y - this->position.y });
 }

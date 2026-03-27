@@ -18,16 +18,11 @@ void Snake::move(Vector2 direction, float deltaTime){
     }
     
     this->direction = direction;
-    Vector2 newPos = position + (direction * speed); 
+    GameObject::move(direction, deltaTime);
+
     
-    int newX = floor(newPos.x);
-    int newY = floor(newPos.y);
-
-    if(game->canMoveToPos(newX, newY)){
-        game->movedToNewCell(this, newX, newY, floor(position.x), floor(position.y));
-        position = newPos;
-
-    }
+    std::cout << "POSITION_x: " << position.x << " POSITION_y: " << position.y << std::endl;
+    std::cout << "LAST_POSITION_x: " << lastPosition.x << " LAST_POSITION_y: " << lastPosition.y << std::endl;
 }
 
 void Snake::addBodyPieces(int count){

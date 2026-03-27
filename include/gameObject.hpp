@@ -12,14 +12,14 @@ public:
 	GameObject(int lives, Vector2 pos, float speed, TextureManager& textureManager, Vector2 direction, 
 		int atlasIndex, Rectangle textureRect, Game* game) :
 		lives(lives), position(pos), speed(speed), textureManager(textureManager), direction(direction), game(game),
-		texture(atlasIndex, textureRect) {}
+		texture(atlasIndex, textureRect), lastPosition(pos) {}
 	
 	GameObject(int lives, Vector2 pos, float speed, TextureManager& textureManager, Vector2 direction, 
 	std::string texturePath, Rectangle textureRect, Game* game) :
 		lives(lives), position(pos), speed(speed), textureManager(textureManager), direction(direction), game(game), 
-		texture(textureManager.loadTexture(texturePath), textureRect){}
+		texture(textureManager.loadTexture(texturePath), textureRect), lastPosition(pos){}
 
-	virtual void move(Vector2 direction, float deltaTime){}
+	virtual void move(Vector2 direction, float deltaTime);
 	bool canMove(float deltaTime);
 
 	virtual void update(float deltaTime) = 0;
@@ -39,6 +39,8 @@ public:
 	Vector2 getDirectionToPos(Vector2 position) const;
 
 	Vector2 getPos() const;
+
+	Vector2 getLastPos() const;
 
 	Vector2 getDirection() const;
 
@@ -72,6 +74,8 @@ protected:
 
 	int lives;
 	Vector2 position; // Posicion EN EL TABLERO DEL JUEGO
+	Vector2 lastPosition;
+
 	float speed;
 	TextureManager& textureManager;
 	Vector2 direction = Vector2Zero();

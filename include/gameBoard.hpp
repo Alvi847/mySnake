@@ -25,7 +25,7 @@ public:
     bool isOut(int x, int y) const;
     bool isOut(Vector2 pos) const;
 
-    void moveObjToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY);
+    Vector2 moveObjToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY);
 
     Vector2 getDimensions();
 
@@ -45,6 +45,7 @@ public:
     int width;
     std::vector<std::vector<Cell*>> cells;
     TextureManager& tm;
+    bool borderlessMode;
     int atlasIndex;
     
 	std::priority_queue<GameObject*, std::vector<GameObject*>, GameObject::CmpGameObjects> drawQueue;

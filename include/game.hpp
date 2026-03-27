@@ -36,7 +36,7 @@ public:
 
 	bool canMoveToPos(int x, int y) const;
 
-	void movedToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY);
+	Vector2 movedToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY);
 
 	void addObj(GameObject* obj);
 
