@@ -154,6 +154,10 @@ bool GameBoard::isOut(int x, int y) const{
     return x >= cells.size() || y >= cells[x].size() || x < 0 || y < 0;
 }
 
+bool GameBoard::isCellEmpty(int x, int y){
+    return !isOut(x, y) && cells[x][y]->isEmpty();
+}
+
 void GameBoard::removeDead(){
     for (auto a : cells)
 	{

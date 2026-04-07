@@ -17,6 +17,8 @@ constexpr float FRUIT_PROBABILITY = 0.1;
 constexpr float FRUIT_SPAWN_COUNTDOWN = 2.0;
 constexpr int MAX_FRUIT_COUNT = 7;
 
+constexpr int NUMBER_OF_PLAYERS = 2; // En desuso actualmente
+
 
 class GameObject;
 class Snake;

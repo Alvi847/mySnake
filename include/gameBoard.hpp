@@ -22,6 +22,8 @@ public:
 	void draw();
 	void queueDrawObject(GameObject* obj);
 
+
+    bool isCellEmpty(int x, int y);
     bool isOut(int x, int y) const;
     bool isOut(Vector2 pos) const;
 

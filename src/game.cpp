@@ -24,12 +24,16 @@ void Game::initGame() {
 	// Modo con tablero	
 	//data.board = new GameBoard(data.textureManager, snakeIndex, this, RESOURCES_PATH "levels/level1.json");
 	
+	// DIMENSIONES DEL TABLERO
+
+	int rightMargin = GetScreenWidth();
+	int bottomMargin = GetScreenHeight();
 	Rectangle boardDimensions;
 	{
-		boardDimensions.x = 0;
-		boardDimensions.y = 200;
-		boardDimensions.width = (GetScreenWidth() - 0) / CELL_SIZE;
-		boardDimensions.height = (GetScreenHeight() - 200) / CELL_SIZE;
+		boardDimensions.x = floor(0);
+		boardDimensions.y = floor(300);
+		boardDimensions.width = floor((rightMargin - boardDimensions.x) / CELL_SIZE);
+		boardDimensions.height = floor((bottomMargin - boardDimensions.y) / CELL_SIZE);
 	}
 
 	// Modo sin tablero
@@ -40,6 +44,7 @@ void Game::initGame() {
 		
 	// Player 1
 
+	// Controles del player 1
 	InputMappings* mappings1 = new InputMappings;
 
 	{
@@ -56,10 +61,11 @@ void Game::initGame() {
 	
 	data.board->add(std::move(player1));
 	
-	player1->addBodyPieces(2);
+	player1->addBodyPieces(28);
 	
 	// Player 2
 	
+	// Controles del player 2
 	InputMappings* mappings2 = new InputMappings;
 	
 	{
@@ -77,7 +83,7 @@ void Game::initGame() {
 	
 	data.board->add(std::move(player2));
 	
-	player2->addBodyPieces(4);
+	player2->addBodyPieces(2);
 }
 
 void Game::gameLoop(float deltaTime) {
@@ -112,14 +118,18 @@ void Game::trySpawnFruit(float deltaTime){
 		data.fruitSpawnTimer = 0.f;
 
 		Vector2 fruitPos = Vector2{(float) floor(rng(data.board->getDimensions().x)), (float) floor(rng(data.board->getDimensions().y))};
-		Rectangle fruitRect{ATLAS_TILE_WIDTH * 6, ATLAS_TILE_HEIGHT * 3,
-			ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
 
-		Fruit* fruit = new Fruit(fruitPos, data.textureManager, 0, fruitRect, this, 1); // TODO: atlasIndex hardcodeado, pero eso está fatal
+		if(!data.board->isCellEmpty(fruitPos.x, fruitPos.y)){
 
-		data.board->add(fruit);
+			Rectangle fruitRect{ATLAS_TILE_WIDTH * 6, ATLAS_TILE_HEIGHT * 3,
+				ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
 
-		data.fruitCounter++;
+			Fruit* fruit = new Fruit(fruitPos, data.textureManager, 0, fruitRect, this, 1); // TODO: atlasIndex hardcodeado, pero eso está fatal
+
+			data.board->add(fruit);
+
+			data.fruitCounter++;
+		}
 	}
 }
 
