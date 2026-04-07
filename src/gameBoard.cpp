@@ -2,20 +2,20 @@
 #include <iostream>
 
 // TODO HACER BIEN EL MAPA
-GameBoard::GameBoard(TextureManager& tm, int atlasIndex, Game* game, const int height, const int width):
-    height(height), width(width), tm(tm), atlasIndex(atlasIndex), borderlessMode(true),
+GameBoard::GameBoard(TextureManager& tm, int atlasIndex, Game* game, Rectangle dimensionsRect):
+    dimensions(dimensionsRect), tm(tm), atlasIndex(atlasIndex), borderlessMode(true),
     drawQueue(std::priority_queue<GameObject*, std::vector<GameObject*>, GameObject::CmpGameObjects>()){
         Rectangle rect = {ATLAS_TILE_WIDTH * 12, 0, ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
-        cells = std::vector<std::vector<Cell*>>(width);
-        for(int i = 0; i < width; i++){
-            cells[i] = std::vector<Cell*>(height);
+        cells = std::vector<std::vector<Cell*>>(dimensions.width);
+        for(int i = 0; i < dimensions.width; i++){
+            cells[i] = std::vector<Cell*>(dimensions.height);
 
-            for(int j = 0; j < height; j++){
+            for(int j = 0; j < dimensions.height; j++){
                 cells[i][j] = (new Cell(0, rect, Vector2{(float) i, (float) j}, tm, atlasIndex, game));
             }
                 
         }
-        std::cout << "HEIGHT: " << height << " WIDTH: " << width << std::endl;
+        std::cout << "HEIGHT: " << dimensions.height << " WIDTH: " << dimensions.width << std::endl;
 }
 
 GameBoard::GameBoard(TextureManager& tm, int atlasIndex, Game* game, std::string levelPath):
@@ -30,11 +30,13 @@ void GameBoard::loadFromFile(std::string path, Game* game){
 
     bool success = false;
 
+    dimensions.x = 0.f;
+    dimensions.y = 0.f;
     
     if (data.find("width") != data.end() && data["width"].is_number()) {
-        width = data["width"];
+        dimensions.width = data["width"];
         if (data.find("height") != data.end() && data["height"].is_number()) {
-            height = data["height"];
+            dimensions.height = data["height"];
             if (data.find("map") != data.end() && data["map"].is_array()) {
                 success = buildMap(data["map"], game);
             }
@@ -52,12 +54,12 @@ bool GameBoard::buildMap(std::vector<std::vector<int>> map, Game* game){
     
     Rectangle rect = {ATLAS_TILE_WIDTH * 12, 0, ATLAS_TILE_WIDTH, ATLAS_TILE_HEIGHT};
 
-    cells = std::vector<std::vector<Cell*>>(width);
+    cells = std::vector<std::vector<Cell*>>(dimensions.width);
 
-    if(map.size() == width){
+    if(map.size() == dimensions.width){
         while(success && i < map.size()){
-            if (map[i].size() == height){
-                cells[i] = std::vector<Cell*>(height);
+            if (map[i].size() == dimensions.height){
+                cells[i] = std::vector<Cell*>(dimensions.height);
 
                 while(success && j < map[i].size()){
                     cells[i][j] = (new Cell(map[i][j], rect, Vector2{(float) i, (float) j}, tm, atlasIndex, game));
@@ -118,18 +120,46 @@ void GameBoard::queueDrawObject(GameObject* obj){
 }
 
 void GameBoard::draw(){
+
+    float baseX = (CELL_SIZE / 2) + dimensions.x; // X offset
+    float baseY = (CELL_SIZE / 2) + dimensions.y; // Y offset
+    
+    for(int col = 0; col < dimensions.width; col++){
+        int startX = baseX + col * CELL_SIZE; 
+        int startY = baseY;
+        int endX = startX;
+        int endY = baseY + dimensions.height * CELL_SIZE - CELL_SIZE; 
+        DrawLine(startX, startY, endX, endY, GRAY);
+    }
+    
+    for(int row = 0; row < dimensions.height; row++){
+        int startX = baseX;
+        int startY = baseY + row * CELL_SIZE;
+        int endX = baseX + dimensions.width * CELL_SIZE - CELL_SIZE;
+        int endY =  startY;
+        DrawLine(startX, startY, endX, endY, GRAY);
+    }
+
 	while(!drawQueue.empty()){
-		drawQueue.top()->draw();
+		drawQueue.top()->draw(Vector2{dimensions.x, dimensions.y});
 		drawQueue.pop();
 	}
 }	
 
 Vector2 GameBoard::getDimensions(){
-    return Vector2{(float) width, (float) height};
+    return Vector2{(float) dimensions.width, (float) dimensions.height};
 }
 
 bool GameBoard::isOut(int x, int y) const{
     return x >= cells.size() || y >= cells[x].size() || x < 0 || y < 0;
+}
+
+void GameBoard::removeDead(){
+    for (auto a : cells)
+	{
+        for(auto b : a)
+		    b->removeDead();
+	}
 }
 
 Vector2 GameBoard::moveObjToNewCell(GameObject* obj, int newX, int newY, int oldX, int oldY){
@@ -144,15 +174,15 @@ Vector2 GameBoard::moveObjToNewCell(GameObject* obj, int newX, int newY, int old
     }
     if(borderlessMode){
         if(!isOut(oldX, oldY)){
-            if (newX >= width)
+            if (newX >= dimensions.width)
                 newX = 0;
             else if (newX < 0)
-                newX = width - 1;
+                newX = dimensions.width - 1;
             
-            if (newY >= height)
+            if (newY >= dimensions.height)
                 newY = 0;
             else if (newY < 0)
-                newY = height - 1;
+                newY = dimensions.height - 1;
 
             cells[oldX][oldY]->removeObj(obj);
             cells[newX][newY]->addObj(obj);

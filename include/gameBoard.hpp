@@ -11,7 +11,7 @@ using json = nlohmann::json;
 
 class GameBoard{
 public:
-	GameBoard(TextureManager& tm, int atlasIndex, Game* game, const int height, const int width);
+	GameBoard(TextureManager& tm, int atlasIndex, Game* game, Rectangle dimensionsRect);
     GameBoard(TextureManager& tm, int atlasIndex, Game* game, std::string levelPath);
 
     bool canMoveToPos(int x, int y) const;
@@ -29,7 +29,7 @@ public:
 
     Vector2 getDimensions();
 
-	//void removeDead();
+	void removeDead();
 	//void spriteRemoved(int index);
 	void free();
 
@@ -40,9 +40,10 @@ public:
 	//void remove(int index);
     void loadFromFile(std::string path, Game* game);
     bool buildMap(std::vector<std::vector<int>> map, Game* game);
-    
-    int height;
-    int width;
+
+    Rectangle dimensions; // Game board dimensions and drawing origin
+
+
     std::vector<std::vector<Cell*>> cells;
     TextureManager& tm;
     bool borderlessMode;

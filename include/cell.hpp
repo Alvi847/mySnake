@@ -25,6 +25,8 @@ class Cell {
     void processAttacks();
 
     void removeObj(GameObject* obj);
+
+    void removeDead();
     
     ~Cell();
     

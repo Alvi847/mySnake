@@ -17,7 +17,7 @@ int main ()
 	Game game(textureManager);
 	
 	// game loop
-	while (!WindowShouldClose())		// run the loop until the user presses ESCAPE or presses the Close button on the window
+	while (!WindowShouldClose() && !game.ended())		// run the loop until the user presses ESCAPE or presses the Close button on the window
 	{
 		// drawing
 		BeginDrawing();

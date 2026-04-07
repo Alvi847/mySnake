@@ -68,6 +68,18 @@ void Cell::removeObj(GameObject* obj){
         objects.erase(objects.begin() + i);
 }
 
+void Cell::removeDead(){
+    for (int i = 0; i < objects.size(); i++)
+	{
+        if (!objects[i]->isAlive()){
+            objects[i]->onRemove();
+            delete objects[i];
+            objects[i] = nullptr;
+            objects.erase(objects.begin() + i);
+        }
+	}
+}
+
 void Cell::processAttacks() {
     for (int i = 0; i < objects.size(); i++)
 	{

@@ -20,18 +20,24 @@ public:
 		texture(textureManager.loadTexture(texturePath), textureRect), lastPosition(pos){}
 
 	virtual void move(Vector2 direction, float deltaTime);
+	virtual void emplace(Vector2 newPos);
+
 	bool canMove(float deltaTime);
 
 	virtual void update(float deltaTime) = 0;
 
-	//virtual bool receiveAttack(GameObject* attacker);
+	virtual bool receiveAttack(GameObject* attacker) {return false;};
 
-	virtual bool attack(GameObject* other);
+	virtual bool receiveAttack(Snake* attacker) {return false;};
 
+	virtual bool attack(GameObject* other) {return false;}
+	
 	bool isAlive() const;
-	void die();
+	virtual void die();
 
-	virtual void onDeath() {}
+	void receiveDamage(int dmg);
+
+	virtual void onRemove() {}
 
 	// Sistema de colision AABB (Axis-Aligned Bounding Box)
 	virtual bool isOnPosition(Vector2 other) const;
@@ -43,6 +49,8 @@ public:
 	Vector2 getLastPos() const;
 
 	Vector2 getDirection() const;
+
+	int getSpeed() const;
 
 	bool isInmune() const;
 
@@ -56,7 +64,7 @@ public:
 		}
 	};
 
-	virtual void draw();
+	virtual void draw(Vector2 globalOrigin);
 
 	void toggleInmune();
 

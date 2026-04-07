@@ -1,9 +1,6 @@
 #include <gameObject.hpp>
 #include <gameBoard.hpp>
-
-bool GameObject::attack(GameObject* other) {
-	return false;
-}
+#include <iostream>
 
 // Sistema de colisi�n AABB (Axis-Aligned Bounding Box)
 bool GameObject::isOnPosition(Vector2 other) const{
@@ -11,14 +8,22 @@ bool GameObject::isOnPosition(Vector2 other) const{
 }
 
 void GameObject::move(Vector2 direction, float deltaTime){
-	Vector2 newPos = position + (direction * speed); 
+	this->direction = direction; 
+	Vector2 newPos = position + (direction * speed);
         
-    newPos = game->movedToNewCell(this, floor(newPos.x), floor(newPos.y), floor(position.x), floor(position.y));
+	emplace(newPos);
+}
 
-    if(!Vector2Equals(newPos, position)){
-        lastPosition = position;
-        position = newPos;
-    }
+void GameObject::emplace(Vector2 newPos){
+	newPos = game->movedToNewCell(this, floor(newPos.x), floor(newPos.y), floor(position.x), floor(position.y));
+
+	if(!Vector2Equals(newPos, position)){
+		lastPosition = position;
+		position = newPos;
+	}
+	
+	//std::cout << "POSITION_x: " << position.x << " POSITION_y: " << position.y << std::endl;
+    //std::cout << "LAST_POSITION_x: " << lastPosition.x << " LAST_POSITION_y: " << lastPosition.y << std::endl;
 }
 
 bool GameObject::canMove(float deltaTime) {
@@ -38,6 +43,10 @@ void GameObject::die() {
 	this->lives = 0;
 }
 
+void GameObject::receiveDamage(int dmg){
+	lives -= dmg;
+}
+
 Vector2 GameObject::getPos() const{
 	return this->position;
 }
@@ -48,6 +57,10 @@ Vector2 GameObject::getLastPos() const{
 
 Vector2 GameObject::getDirection() const{
 	return this->direction;
+}
+
+int GameObject::getSpeed() const{
+	return speed;
 }
 
 bool GameObject::isInmune() const{
@@ -70,10 +83,10 @@ bool GameObject::istraversable() const{
 	return traversable;
 }
 
-void GameObject::draw() {
+void GameObject::draw(Vector2 globalOrigin) {
 	if (texture.atlasIndex != -1)
 	{
-		textureManager.draw(texture.atlasIndex, texture.rect, position * CELL_SIZE, direction, WHITE);
+		textureManager.draw(texture.atlasIndex, texture.rect, position * CELL_SIZE + globalOrigin, direction, WHITE);
 	}
 }
 
